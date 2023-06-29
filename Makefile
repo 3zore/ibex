@@ -21,8 +21,12 @@
 GNUARM_PREFIX ?= /opt/gnuarm/bin/arm-none-eabi-
 #TARGET ?= iPad3,1/11D257/iBoot
 #TARGET ?= iPhone3,1/11D257/iBoot
+#TARGET ?= iPhone3,1/9A405/iBoot
+#TARGET ?= iPhone3,1/9B206/iBoot
 #TARGET ?= iPhone4,1/11D257/iBoot
 #TARGET ?= iPhone5,2/11B554a/iBoot
+#TARGET ?= iPod3,1/9B206/iBoot
+#TARGET ?= iPod4,1/9B206/iBoot
 #PIE = 1
 
 CC = $(GNUARM_PREFIX)gcc
