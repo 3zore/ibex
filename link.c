@@ -176,7 +176,7 @@ find_easy(const char *pattern, size_t patlen)
     if (!mm) {
         return NULL;
     }
-    fn = push_lr_search_up(mm, 0x500);
+    fn = push_lr_search_up(mm, 0x200);
     if (!fn) {
         return NULL;
     }
@@ -226,7 +226,25 @@ find_snprintf(void)
 MAYBE_UNUSED malloc_t
 find_malloc(void)
 {
-    return (malloc_t)(int)find_easy("_malloc must allocate at least one byte", sizeof("_malloc must allocate at least one byte") - 1);
+    const char *ldr;
+    const void *bl;
+    const void *mm = find_xref("usb_create_string_descriptor: malloc failed", sizeof("usb_create_string_descriptor: malloc failed") - 1);
+    const void *ret = find_easy("_malloc must allocate at least one byte", sizeof("_malloc must allocate at least one byte") - 1);
+    if (!ret) {
+        if (!mm) {
+            return NULL;
+        }
+        ldr = ldr_to(mm);
+        if (!ldr) {
+            return NULL;
+        }
+        bl = bl_search_down(ldr - 16, 40);
+        if (!bl) {
+            return NULL;
+        }
+        return (malloc_t)(int)resolve_bl32(bl);
+    }
+    return (malloc_t)(int)ret;
 }
 
 MAYBE_UNUSED free_t
@@ -239,7 +257,11 @@ find_free(void)
     }
     pop = pattern_search(mm, 0x200, 0x40F0E8BD, 0xFFFFFFFF, -2);
     if (!pop) {
-        return NULL;
+        pop = pattern_search(mm, 0x200, 0xBDF0, 0xFFFF, -2);
+        if (!pop) {
+            return NULL;
+        }
+        return (free_t)(int)resolve_bl32(pop - 1);
     }
     return (free_t)(int)resolve_bl32(pop + 1);
 }
@@ -301,7 +323,16 @@ find_aes_crypto_cmd(void)
 MAYBE_UNUSED aes_crypto_cmd_t
 find_aes_hw_crypto_cmd(void)
 {
-    return (aes_crypto_cmd_t)(int)find_easy("aes_hw_crypto_cmd", sizeof("aes_hw_crypto_cmd") - 1);
+    const char *fn;
+    const void *mm = find_xref("aes_hw_crypto_cmd", sizeof("aes_hw_crypto_cmd") - 1);
+    if (!mm) {
+        return NULL;
+    }
+    fn = push_lr_search_up(mm, 0x500);
+    if (!fn) {
+        return NULL;
+    }
+    return (aes_crypto_cmd_t)(int)(fn + 1);
 }
 
 MAYBE_UNUSED enter_critical_section_t
@@ -365,7 +396,7 @@ find_create_envvar(void)
 {
     const void *ldr;
     const void *bl;
-    const void *mm = find_xref("build-style", sizeof("build-style") - 1);
+    const void *mm = find_xref("build-version", sizeof("build-version") - 1);
     if (!mm) {
         return NULL;
     }
@@ -437,13 +468,40 @@ find_bdev_stack(void)
 }
 
 MAYBE_UNUSED void *
+find_bdev_stack_old(void)
+{
+    const void *bl;
+    unsigned ldr;
+    const void *mm = find_easy("SysCfg: version 0x%08x with %d entries using %d of %d bytes", sizeof("SysCfg: version 0x%08x with %d entries using %d of %d bytes") - 1);
+    if (!mm) {
+        return NULL;
+    }
+    bl = bl_search_down((void *)((unsigned)mm & ~1), 16);
+    if (!bl) {
+        return NULL;
+    }
+    bl = resolve_bl32(bl);
+    if (!bl) {
+        return NULL;
+    }
+    ldr = (unsigned)ldr_search_down((void *)((unsigned)bl & ~1), 16);
+    if (!ldr) {
+        return NULL;
+    }
+    return ((void **)(ldr & ~3))[*(unsigned char *)ldr + 1];
+}
+
+MAYBE_UNUSED void *
 find_image_list(void)
 {
     const void *mm = find_xref("image %p: bdev %p type %c%c%c%c offset 0x%llx", sizeof("image %p: bdev %p type %c%c%c%c offset 0x%llx") - 1);
     if (!mm) {
-        static struct linked_list fake_image_list;
-        fake_image_list.next = fake_image_list.prev = &fake_image_list;
-        return &fake_image_list;
+        mm = find_xref("image %p: bdev %p type %c%c%c%c offset 0x%x", sizeof("image %p: bdev %p type %c%c%c%c offset 0x%x") - 1);
+        if (!mm) {
+            static struct linked_list fake_image_list;
+            fake_image_list.next = fake_image_list.prev = &fake_image_list;
+            return &fake_image_list;
+        }
     }
     return ((void **)mm)[-1];
 }
@@ -721,6 +779,9 @@ link(void *caller)
 
 #ifndef TARGET_BDEV_STACK
         bdev_stack = find_bdev_stack();
+        if (!bdev_stack) {
+            bdev_stack = find_bdev_stack_old();
+        }
 #elif !defined(TARGET_BASEADDR)
         bdev_stack = (void *)(TARGET_BASEADDR + TARGET_BDEV_STACK);
 #endif

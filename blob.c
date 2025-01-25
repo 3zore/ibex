@@ -232,11 +232,11 @@ save_all_blobs(void)
     struct firmware_image *e;
 
     for (n = 0, e = ((struct firmware_image *)image_list)->next; n < ARRAY_SIZE(blobs) - 2 && e != image_list; e = e->next, n++) {
-        /*printf_("saving blob for %c%c%c%c\n",
+        printf_("saving blob for %c%c%c%c\n",
                 (e->info.type >> 24) & 0xFF,
                 (e->info.type >> 16) & 0xFF,
                 (e->info.type >> 8) & 0xFF,
-                e->info.type & 0xFF);*/
+                e->info.type & 0xFF);
         blobs[n] = save_blob(e);
     }
     blobs[n++] = save_llb();
