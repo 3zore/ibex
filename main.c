@@ -176,6 +176,10 @@ _main(int argc, CmdArg *argv)
         return save_all_blobs();
     }
 
+    if (argc == 2 && argv[1].string[0] == 'f') {
+        return finder();
+    }
+
     printf_("bad args\n");
     return 0;
 }

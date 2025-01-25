@@ -176,7 +176,7 @@ find_easy(const char *pattern, size_t patlen)
     if (!mm) {
         return NULL;
     }
-    fn = push_lr_search_up(mm, 0x200);
+    fn = push_lr_search_up(mm, 0x500);
     if (!fn) {
         return NULL;
     }
@@ -298,6 +298,12 @@ find_aes_crypto_cmd(void)
     return (aes_crypto_cmd_t)(int)find_easy("aes_crypto_cmd", sizeof("aes_crypto_cmd") - 1);
 }
 
+MAYBE_UNUSED aes_crypto_cmd_t
+find_aes_hw_crypto_cmd(void)
+{
+    return (aes_crypto_cmd_t)(int)find_easy("aes_hw_crypto_cmd", sizeof("aes_hw_crypto_cmd") - 1);
+}
+
 MAYBE_UNUSED enter_critical_section_t
 find_enter_critical_section(void)
 {
@@ -313,6 +319,7 @@ find_exit_critical_section(void)
 MAYBE_UNUSED h2fmi_select_t
 find_h2fmi_select(void)
 {
+/*
     const void *fn;
     const void *bl;
     const void *mm = NULL;
@@ -331,6 +338,22 @@ find_h2fmi_select(void)
         return NULL;
     }
     bl = bl_search_down(fn, 32);
+    if (!bl) {
+        return NULL;
+    }
+    return (h2fmi_select_t)(int)resolve_bl32(bl);
+ */
+    const char *ldr;
+    const void *bl;
+    const void *mm = find_xref("[NAND] %s:%d Apple PPN NAND ", sizeof("[NAND] %s:%d Apple PPN NAND ") - 1);
+    if (!mm) {
+        return NULL;
+    }
+    ldr = ldr_to(mm);
+    if (!ldr) {
+        return NULL;
+    }
+    bl = bl_search_down(ldr + 16, 32);
     if (!bl) {
         return NULL;
     }
@@ -500,6 +523,18 @@ stub_aes_crypto_cmd(int crypt_type, void *inbuf, void *outbuf, unsigned int inbu
     return -1;
 }
 
+MAYBE_UNUSED int
+stub_aes_hw_crypto_cmd(int crypt_type, void *inbuf, void *outbuf, unsigned int inbuf_len, unsigned int aes_key_type, char *iv, char *key)
+{
+    aes_crypto_cmd_t p = find_aes_hw_crypto_cmd();
+    if (p) {
+        aes_crypto_cmd_ = p;
+        return aes_crypto_cmd_(crypt_type, inbuf, outbuf, inbuf_len, aes_key_type, iv, key);
+    }
+    printf_("unresolved aes_hw_crypto_cmd\n");
+    return -1;
+}
+
 MAYBE_UNUSED void
 stub_enter_critical_section(void)
 {
@@ -635,6 +670,9 @@ link(void *caller)
 
 #ifndef TARGET_AES_CRYPTO_CMD
         aes_crypto_cmd_ = stub_aes_crypto_cmd;
+        if (TARGET_BASEADDR == 0x5FF00000) {
+            aes_crypto_cmd_ = stub_aes_hw_crypto_cmd;
+        }
 #elif !defined(TARGET_BASEADDR)
         aes_crypto_cmd_ = TARGET_BASEADDR + TARGET_AES_CRYPTO_CMD;
 #endif
@@ -694,6 +732,28 @@ link(void *caller)
 #endif
     }
     return version;
+}
+
+int
+finder(void)
+{
+    printf_("printf: %x\n", (unsigned int)find_printf());
+    printf_("snprintf: %x\n", (unsigned int)find_snprintf());
+    printf_("malloc: %x\n", (unsigned int)find_malloc());
+    printf_("free: %x\n", (unsigned int)find_free());
+    printf_("memmove: %x\n", (unsigned int)find_memmove());
+    printf_("aes_crypto_cmd: %x\n", (unsigned int)find_aes_crypto_cmd());
+    printf_("aes_hw_crypto_cmd: %x\n", (unsigned int)find_aes_hw_crypto_cmd());
+    printf_("enter_critical_section: %x\n", (unsigned int)find_enter_critical_section());
+    printf_("exit_critical_section: %x\n", (unsigned int)find_exit_critical_section());
+    printf_("jumpto: %x\n", (unsigned int)find_jumpto());
+    printf_("h2fmi_select: %x\n", (unsigned int)find_h2fmi_select());
+    printf_("create_envvar: %x\n", (unsigned int)find_create_envvar());
+    printf_("fs_mount: %x\n", (unsigned int)find_fs_mount());
+    printf_("fs_loadfile: %x\n", (unsigned int)find_fs_loadfile());
+    printf_("bdev_stack: %x\n", (unsigned int)bdev_stack);
+    printf_("image_list: %x\n", (unsigned int)image_list);
+    return 0;
 }
 
 #ifndef TARGET_BASEADDR

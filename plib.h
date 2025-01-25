@@ -111,6 +111,7 @@ extern unsigned int get_addr;
 extern unsigned int get_endp;
 
 int link(void *caller);
+int finder(void);
 
 void flush_icache(void);
 
