@@ -76,7 +76,9 @@ struct firmware_image {
     struct bdev_t *bdev;
     unsigned offset_lo;
     unsigned offset_hi;
+#ifndef LEGACY
     unsigned field_14;
+#endif
     struct firmware_image_info info;
 } /*__attribute__((packed))*/;
 

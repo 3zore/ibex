@@ -18,7 +18,7 @@
 
 .PHONY: all clean distclean
 
-GNUARM_PREFIX ?= /opt/gnuarm/bin/arm-none-eabi-
+GNUARM_PREFIX ?= ~/gcc-arm-none-eabi/bin/arm-none-eabi-
 #TARGET ?= iPad3,1/11D257/iBoot
 #TARGET ?= iPhone3,1/11D257/iBoot
 #TARGET ?= iPhone3,1/9A405/iBoot
@@ -35,6 +35,7 @@ CFLAGS += -Wno-long-long
 CFLAGS += -Os
 #CFLAGS += -mthumb -march=armv6
 CFLAGS += -fcall-used-r9
+#CFLAGS += -DLEGACY
 
 LD = $(GNUARM_PREFIX)gcc
 LDFLAGS = -L. -nostdlib

@@ -173,8 +173,13 @@ _main(int argc, CmdArg *argv)
     /* --- blob functions --- */
 
     if (argc == 2 && argv[1].string[0] == 'b') {
+#ifdef LEGACY
+        printf_("[!] LEGACY BUILD\n");
+#endif
         return save_all_blobs();
     }
+
+    /* --- debug functions --- */
 
     if (argc == 2 && argv[1].string[0] == 'f') {
         return finder();
