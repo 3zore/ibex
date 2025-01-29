@@ -1,3 +1,0 @@
-on n94 7.0.4, ibex would not work with static offsets even if those are correct.
-when iBoot32Patcher seems not work for iBSS, use gala's iBSS patch.
-tested on n90 4.2.1

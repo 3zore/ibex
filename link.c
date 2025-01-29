@@ -506,6 +506,26 @@ find_image_list(void)
     return ((void **)mm)[-1];
 }
 
+MAYBE_UNUSED void *
+find_hfsreadblock(void)
+{
+    const char *ldr;
+    const void *bl;
+    const void *mm = find_xref("HFSInitPartition: %p", sizeof("HFSInitPartition: %p") - 1);
+    if (!mm) {
+        return NULL;
+    }
+    ldr = ldr_to(mm);
+    if (!ldr) {
+        return NULL;
+    }
+    bl = bl_search_down(ldr + 16, 32);
+    if (!bl) {
+        return NULL;
+    }
+    return (void **)resolve_bl32(bl);
+}
+
 MAYBE_UNUSED int
 stub_printf(const char *fmt, ...)
 {
@@ -791,6 +811,12 @@ link(void *caller)
 #elif !defined(TARGET_BASEADDR)
         image_list = (void *)(TARGET_BASEADDR + TARGET_IMAGE_LIST);
 #endif
+
+#ifndef TARGET_HFSREADBLOCK
+        hfsreadblock = find_hfsreadblock();
+#elif !defined(TARGET_BASEADDR)
+        hfsreadblock = TARGET_BASEADDR + TARGET_HFSREADBLOCK;
+#endif
     }
     return version;
 }
@@ -909,4 +935,10 @@ void *bdev_stack;
 void *image_list = (void *)(TARGET_BASEADDR + TARGET_IMAGE_LIST);
 #else
 void *image_list;
+#endif
+
+#ifdef TARGET_HFSREADBLOCK
+void *hfsreadblock = (void *)(TARGET_BASEADDR + TARGET_HFSREADBLOCK);
+#else
+void *hfsreadblock;
 #endif

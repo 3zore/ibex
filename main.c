@@ -21,6 +21,7 @@
 #include "plib.h"
 #include "nand.h"
 #include "blob.h"
+#include "misc.h"
 
 
 #define TRANSFER_CHUNK 1000
@@ -183,6 +184,18 @@ _main(int argc, CmdArg *argv)
 
     if (argc == 2 && argv[1].string[0] == 'f') {
         return finder();
+    }
+
+    /*
+     disk0s1s1: nand0a
+     disk0s1s2: nand0b
+     disk0s1s3: nand0c
+     */
+    if (argc == 3 && argv[1].string[0] == 'h') {
+        hfswapperinject();
+        printf_("mounting %s\n", (char *)argv[2].string);
+        fs_mount_((char *)argv[2].string, "hfs", "/boot");
+        return 0;
     }
 
     printf_("bad args\n");

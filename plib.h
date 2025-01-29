@@ -104,6 +104,7 @@ extern fs_loadfile_t fs_loadfile_;
 
 extern void *bdev_stack;
 extern void *image_list;
+extern void *hfsreadblock;
 
 /* our stuff */
 

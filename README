@@ -22,3 +22,15 @@ Put device in Recovery mode.
     ./irecovery -s
     iRecovery> /send payload
     iRecovery> ...
+
+
+About this fork:
+    This fork enables you to dump shsh blobs from iOS 4 devices and to develop HFS+ heap buffer overflow without special cables or injecting wapper
+    Note that when iBoot32Patcher seem not work for iBSS, try gala's iBSS patch
+    
+    Credits
+    @nyansatan: HFSReadWapper
+    @codyd51:   iBSS patch
+
+Patches
+    echo /Td6WFoAAATm1rRGAgAhARYAAAB0L+Wj4Av/AghdADSYilfDUzkchf7jmE/dv3oKefTmo2R5ZOy5jHOf2Hgkh1Nq44wdRdCIzIH5VL0+N8wozSwik59T9YpyGozJVSx16k2jmMyH0d9JiFHlMS9E2Jkprf8tC7CB/JZ6u5sqXZ9OVXtN7DZya/wNQB7YdrF0ChO66Wl6PCjFvWIy9QS/ItTt8aJDobDasKZB/Ua2r7Hh0kdLMiKqqhbt0MyuEUJ9HX/R/Rsl4PitLQJ3lF3KKJ+rOm1CcDa0AD9uRP6ao3G45zpS8spUbWX+4R2CxmG66pqUs/yB+F4FwrMG5zKYWDDU5Q4BcHDKkD16aGUOPJfDUqMWM7dt7omq8codycq6zTsNx7pukB+Wwh3+mYn6sYOPI310Gidsf1t79QtqpavyzZ5dlvqae/PBr3N9TLh+uNoF27knIF9FY6/RxCGPZN41mYW7EJqE7y+L4EXrO1w8cTtL3TEftrziEUMj/SdlXtXMWQG6XUNyfaGX2Cb2DCRBzH79BNSQcoI2vOvJMt8NmyxLZVYz9SN4EQi5fUDYumHgeu4o6YmbkOoEwdW4EGi7b/m8ntMcy2miHuwZe23rnQ8MF/DfkpReXOfPdXhQ68+kgkfUjq48Ql629ELCkaabQJ15I6/oNU3AG6/ElKeKuEWagY6rRbVmHjfpPdfzjuWsDGD+xBNypVVe+rJ4ntZNWcOOAgAA80yndGU3fBAAAaQEgBgAABZlNEuxxGf7AgAAAAAEWVo= | base64 -d > patch.tar.gz

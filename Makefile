@@ -59,6 +59,7 @@ SOURCES = \
 	link.c \
 	nand.c \
 	blob.c \
+	misc.c \
 	main.c
 
 LIBSOURCES = \
