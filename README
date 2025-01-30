@@ -25,7 +25,7 @@ Put device in Recovery mode.
 
 
 About this fork:
-    This fork enables you to dump shsh blobs from iOS 4 devices and to develop HFS+ heap buffer overflow without special cables or injecting wapper
+    This fork enables you to dump shsh blobs from iOS 4 devices 
     Note that when iBoot32Patcher seem not work for iBSS, try gala's iBSS patch
     
     Credits
